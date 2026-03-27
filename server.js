@@ -47,8 +47,8 @@ export async function getRequests() {
 export async function getRequestInfo() {
     const { data, error } = await supabase
         .from("Requests (info)")
-        .select("*")
-
+        .select("*");
+    
     if (error) {
         console.error("Error fetching request info:", error);
     } else {
