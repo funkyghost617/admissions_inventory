@@ -1,6 +1,4 @@
-import postgres from "postgres";
+import { createClient } from "@supabase/supabase-js";
+import "dotenv/config";
 
-const connectionString = process.env.DATABASE_URL;
-const sql = postgres(connectionString);
-
-export default sql;
+export const supabase = createClient("https://csojncjvwtpnskbknqvi.supabase.co", "sb_publishable_IXyzkAJjqR0Z6bRy2KnY6g_3jS4BmBU");
