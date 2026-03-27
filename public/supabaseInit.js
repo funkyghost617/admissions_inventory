@@ -1,6 +1,6 @@
-import { supabase } from "./db.js";
 
-export async function getInventory() {
+
+/*export async function getInventory() {
     const { data, error } = await supabase
         .from("Inventory")
         .select("*");
@@ -38,4 +38,4 @@ export async function getRequestInfo(requestID) {
         console.log("Request info:", data);
         return data;
     }
-}
+}*/
