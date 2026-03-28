@@ -45,16 +45,27 @@ export async function getRequests() {
 }
 
 export async function getRequestInfo(requestID) {
-    const { data, error } = await supabase
-        .from("Requests (info)")
-        .select("*")
-        .eq("request_id", requestID);
-    
-    if (error) {
-        console.error("Error fetching request info:", error);
+    if (requestID == null) {
+        const { data, error } = await supabase
+            .from("Requests (info)")
+            .select("*");
+        if (error) {
+            console.error("Error fetching request info:", error);
+        } else {
+            console.log("Request info:", data);
+            return data;
+        }
     } else {
-        console.log("Request info:", data);
-        return data;
+        const { data, error } = await supabase
+            .from("Requests (info)")
+            .select("*")
+            .eq("request_id", requestID);
+        if (error) {
+            console.error("Error fetching request info:", error);
+        } else {
+            console.log("Request info:", data);
+            return data;
+        }
     }
 }
 
@@ -74,9 +85,9 @@ app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
     res.status(404).sendFile("public/404.html", { root: __dirname });
-})
+})*/
 
 async function sendFileAsync(filePath, res) {
     try {

@@ -12,7 +12,7 @@ async function fetchRequestsFromServer() {
     return JSON.stringify(jsonResponse, null, 2);
 }
 
-async function fetchRequestInfosFromServer(requestID = "NULL") {
+async function fetchRequestInfosFromServer(requestID = null) {
     const response = await fetch("/requestinfo/" + requestID);
     const jsonResponse = await response.json();
     console.log(JSON.stringify(jsonResponse, null, 2));
