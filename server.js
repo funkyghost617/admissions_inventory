@@ -44,10 +44,11 @@ export async function getRequests() {
     }
 }
 
-export async function getRequestInfo() {
+export async function getRequestInfo(requestID) {
     const { data, error } = await supabase
         .from("Requests (info)")
-        .select("*");
+        .select("*")
+        .eq("request_id", requestID);
     
     if (error) {
         console.error("Error fetching request info:", error);
@@ -57,8 +58,16 @@ export async function getRequestInfo() {
     }
 }
 
-app.get("/data", async (req, res) => {
-    res.json({ data: [await getInventory(), await getRequests(), await getRequestInfo(), "hello world"] });
+app.get("/inventory", async (req, res) => {
+    res.json({ data: await getInventory() });
+})
+
+app.get("/requests", async (req, res) => {
+    res.json({ data: await getRequests() });
+})
+
+app.get("/requestinfo/:id", async (req, res) => {
+    res.json({ data: await getRequestInfo(req.params.id) });
 })
 
 app.listen(port, () => {
