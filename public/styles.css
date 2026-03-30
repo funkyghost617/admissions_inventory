@@ -1,0 +1,29 @@
+* {
+    box-sizing: border-box;
+}
+
+.date-time-error {
+    background: red;
+}
+
+#inventory-cards {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+#inventory-cards > div {
+    border: 2px solid black;
+}
+
+/*
+Source - https://stackoverflow.com/a/71486092
+Posted by Harvey Mushman
+Retrieved 2026-03-29, License - CC BY-SA 4.0
+*/
+input[type="datetime-local"]::-webkit-inner-spin-button,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    margin:0;
+}
+input[type="datetime-local"]::-webkit-datetime-edit {
+    display:none;
+}

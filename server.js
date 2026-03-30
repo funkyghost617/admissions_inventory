@@ -14,6 +14,10 @@ app.get("/", (req, res) => {
     sendFileAsync("public/index.html", res);
 });
 
+app.get("/admin", (req, res) => {
+    sendFileAsync("public/admin.html", res);
+});
+
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient("https://csojncjvwtpnskbknqvi.supabase.co", "sb_publishable_IXyzkAJjqR0Z6bRy2KnY6g_3jS4BmBU");
@@ -70,24 +74,24 @@ export async function getRequestInfo(requestID) {
 }
 
 app.get("/inventory", async (req, res) => {
-    res.json({ data: await getInventory() });
+    res.send(await getInventory());
 })
 
 app.get("/requests", async (req, res) => {
-    res.json({ data: await getRequests() });
+    res.send(await getRequests());
 })
 
 app.get("/requestinfo/:id", async (req, res) => {
-    res.json({ data: await getRequestInfo(req.params.id) });
+    res.send(await getRequestInfo(req.params.id));
 })
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
 
-/*app.use((req, res, next) => {
+app.use((req, res, next) => {
     res.status(404).sendFile("public/404.html", { root: __dirname });
-})*/
+})
 
 async function sendFileAsync(filePath, res) {
     try {
