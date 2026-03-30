@@ -33,12 +33,21 @@ currentInventory.forEach(item => {
     const card = document.createElement("div");
     const name = document.createElement("h3");
     name.textContent = item.name;
+    const image = document.createElement("img");
+    image.setAttribute("src", item.image_link);
     const quantity = document.createElement("p");
     quantity.textContent = `Total quantity: ${item.quantity}`;
     const location = document.createElement("p");
     location.textContent = `Location: ${item.location}`;
+    const selectAmount = document.createElement("select");
+    selectAmount.setAttribute("item-id", item.id)
+    for (let i = 0; i < item.quantity + 1; i++) {
+        const selectOption = document.createElement("option");
+        selectOption.textContent = i;
+        selectAmount.appendChild(selectOption);
+    }
 
-    card.append(name, quantity, location);
+    card.append(name, image, quantity, location, selectAmount);
     inventoryCardsDiv.appendChild(card);
 })
 
@@ -79,3 +88,34 @@ let defaultEndDateTime = new Date();
 defaultEndDateTime.setDate(defaultEndDateTime.getDate() + 1);
 timeEndInput.value = defaultEndDateTime.toISOString().slice(0, -8);
 currentTimeEnd.textContent = new Date(timeEndInput.value).toLocaleString("en-US", options);
+
+const nameInput = document.querySelector("#name");
+const emailInput = document.querySelector("#email");
+
+
+const itemQuantitySelectors = document.querySelectorAll("#inventory-cards select");
+
+
+const submitBtn = document.querySelector("#submit-btn");
+submitBtn.addEventListener("click", async (e) => {
+    const requestObj = { 
+        name: nameInput.value,
+        email: emailInput.value,
+        time_start: timeStartInput.value,
+        time_end: timeEndInput.value
+    };
+
+    let requestInfoArray = [];
+    itemQuantitySelectors.forEach(selector => {
+        if (selector.value != 0) {
+            const infoObj = { item_id: selector.getAttribute("item-id"), quantity: selector.value };
+            requestInfoArray.push(infoObj);
+        }
+    })
+
+    const fullObj = { request: requestObj, request_info: requestInfoArray };
+
+    const request = await fetch("/submitrequest/" + JSON.stringify(fullObj));
+    const response = await request.json();
+    console.log(response);
+})

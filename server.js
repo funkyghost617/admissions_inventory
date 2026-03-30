@@ -22,7 +22,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient("https://csojncjvwtpnskbknqvi.supabase.co", "sb_publishable_IXyzkAJjqR0Z6bRy2KnY6g_3jS4BmBU");
 
-export async function getInventory() {
+async function getInventory() {
     const { data, error } = await supabase
         .from("Inventory")
         .select("*");
@@ -35,7 +35,7 @@ export async function getInventory() {
     }
 }
 
-export async function getRequests() {
+async function getRequests() {
     const { data, error } = await supabase
         .from("Requests")
         .select("*");
@@ -48,7 +48,7 @@ export async function getRequests() {
     }
 }
 
-export async function getRequestInfo(requestID) {
+async function getRequestInfo(requestID) {
     if (requestID == null) {
         const { data, error } = await supabase
             .from("Requests (info)")
@@ -83,6 +83,27 @@ app.get("/requests", async (req, res) => {
 
 app.get("/requestinfo/:id", async (req, res) => {
     res.send(await getRequestInfo(req.params.id));
+})
+
+async function submitRequest(jsonRequest) {
+    let fullRequest = JSON.parse(jsonRequest)
+    const { data, error } = await supabase
+        .from("Requests")
+        .insert(fullRequest.request)
+        .select();
+    const requestObj = data[0];
+    const requestInfoArray = fullRequest.request_info;
+    requestInfoArray.forEach(async (infoItem) => {
+        const infoObj = { quantity: infoItem.quantity, item_id: infoItem.item_id, request_id: requestObj.id };
+        const { error } = await supabase
+            .from("Requests (info)")
+            .insert(infoObj);
+    })
+}
+
+app.get("/submitrequest/:id", async (req, res) => {
+    await submitRequest(req.params.id);
+    res.send(JSON.stringify("success!"));
 })
 
 app.listen(port, () => {
