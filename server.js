@@ -119,6 +119,24 @@ app.get("/submitadminpassword/:id", (req, res) => {
     }
 })
 
+async function submitInventoryUpdate(jsonRequest) {
+    let fullRequest = JSON.parse(jsonRequest);
+    console.log(fullRequest);
+    let requestObject = fullRequest.requestObj;
+    console.log(requestObject);
+    const { data, error } = await supabase
+        .from("Inventory")
+        .update(requestObject)
+        .eq("id", fullRequest.id)
+        .select();
+    console.log(data);
+}
+
+app.get("/submitinventoryupdate/:id", async (req, res) => {
+    await submitInventoryUpdate(req.params.id);
+    res.send(JSON.stringify("success!"));
+})
+
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });

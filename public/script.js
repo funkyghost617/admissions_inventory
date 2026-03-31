@@ -35,10 +35,10 @@ currentInventory.forEach(item => {
     name.textContent = item.name;
     const image = document.createElement("img");
     image.setAttribute("src", item.image_link);
-    const quantity = document.createElement("p");
-    quantity.textContent = `Total quantity: ${item.quantity}`;
     const location = document.createElement("p");
     location.textContent = `Location: ${item.location}`;
+    const quantity = document.createElement("p");
+    quantity.textContent = `Total quantity: ${item.quantity}`;
     const selectAmount = document.createElement("select");
     selectAmount.setAttribute("item-id", item.id)
     for (let i = 0; i < item.quantity + 1; i++) {
@@ -47,7 +47,7 @@ currentInventory.forEach(item => {
         selectAmount.appendChild(selectOption);
     }
 
-    card.append(name, image, quantity, location, selectAmount);
+    card.append(name, image, location, quantity, selectAmount);
     inventoryCardsDiv.appendChild(card);
 })
 
