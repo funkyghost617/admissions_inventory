@@ -9,6 +9,7 @@ const adminPassword = "Huh67";
 
 // serve static files from github pages project
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
 
 // define a basic route for the root
 app.get("/", (req, res) => {
@@ -120,7 +121,7 @@ app.get("/submitadminpassword/:id", (req, res) => {
 })
 
 async function submitInventoryUpdate(jsonRequest) {
-    let fullRequest = JSON.parse(jsonRequest);
+    let fullRequest = jsonRequest;
     console.log(fullRequest);
     let requestObject = fullRequest.requestObj;
     console.log(requestObject);
@@ -132,8 +133,39 @@ async function submitInventoryUpdate(jsonRequest) {
     console.log(data);
 }
 
-app.get("/submitinventoryupdate/:id", async (req, res) => {
-    await submitInventoryUpdate(req.params.id);
+app.post("/submitinventoryupdate", async (req, res) => {
+    await submitInventoryUpdate(req.body);
+    res.send(JSON.stringify("success!"));
+})
+
+async function submitNewInventoryItem(jsonRequest) {
+    let fullRequest = jsonRequest;
+    console.log(fullRequest);
+    let requestObject = fullRequest.requestObj;
+    console.log(requestObject);
+    const { data, error } = await supabase
+        .from("Inventory")
+        .insert(requestObject)
+        .select();
+    console.log(data);
+    return data.id;
+}
+
+app.post("/submitnewinventoryitem", async (req, res) => {
+    const newItemID = await submitNewInventoryItem(req.body);
+    res.send(JSON.stringify({ message: "success!", id: newItemID }));
+})
+
+async function deleteInventoryItem(requestedID) {
+    const response = await supabase
+        .from("Inventory")
+        .delete()
+        .eq("id", Number(requestedID));
+    console.log("success!");
+}
+
+app.get("/deleteinventoryitem/:id", async (req, res) => {
+    await deleteInventoryItem(req.params.id);
     res.send(JSON.stringify("success!"));
 })
 
