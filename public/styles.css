@@ -20,6 +20,18 @@
     width: 100%;
 }
 
+#password-page {
+    position: absolute;
+    z-index: 3;
+    width: 96vw;
+    height: 96vh;
+    background: white;
+}
+
+#password-page.successful {
+    display: none;
+}
+
 /*
 Source - https://stackoverflow.com/a/71486092
 Posted by Harvey Mushman

@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 const app = express();
 const port = process.env.PORT || 3000;
 const __dirname = "./";
+const adminPassword = "Huh67";
 
 // serve static files from github pages project
 app.use(express.static(path.join(__dirname, "public")));
@@ -104,6 +105,18 @@ async function submitRequest(jsonRequest) {
 app.get("/submitrequest/:id", async (req, res) => {
     await submitRequest(req.params.id);
     res.send(JSON.stringify("success!"));
+})
+
+app.get("/submitadminpassword/:id", (req, res) => {
+    const submittedPassword = JSON.parse(req.params.id).password;
+    console.log(submittedPassword);
+    if (submittedPassword == adminPassword) {
+        res.send(JSON.stringify(true));
+        return;
+    } else {
+        res.send(JSON.stringify(false));
+        return;
+    }
 })
 
 app.listen(port, () => {

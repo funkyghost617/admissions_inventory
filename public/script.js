@@ -98,6 +98,28 @@ const itemQuantitySelectors = document.querySelectorAll("#inventory-cards select
 
 const submitBtn = document.querySelector("#submit-btn");
 submitBtn.addEventListener("click", async (e) => {
+    let isAllZeros = true;
+    itemQuantitySelectors.forEach(selector => {
+        if (selector.value != 0) {
+            isAllZeros = false;
+        }
+    });
+    if (isAllZeros) {
+        alert("Must request at least one item");
+        return;
+    } else if (nameInput.value == "") {
+        alert("Must enter name");
+        return;
+    } else if (emailInput.value == "" || !/^.+@.+$/.test(emailInput.value)) {
+        alert("Must enter valid email");
+        return;
+    } else if (dateTimeInfo.classList.contains("date-time-error")) {
+        alert("Must enter valid date range");
+        return;
+    } else {
+        console.log("passed form validation\ncontinuing request submission");
+    }
+    
     const requestObj = { 
         name: nameInput.value,
         email: emailInput.value,
