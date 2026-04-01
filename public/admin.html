@@ -5,17 +5,20 @@
         <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
-        <div id="password-page">
+        <div id="password-page" hidden>
             <label for="password">Password: <input id="password" type="password" /></label>
         </div>
         <h1>Inventory admin page</h1>
         <div id="inventory-div">
-            <h2>Inventory</h2>
+            <h2>Inventory</h2><button type="button" id="inventory-btn">hide section</button>
             <div id="inventory-cards"></div>
         </div>
         <div id="requests-div">
-            <h2>Requests</h2>
-            <div id="request-cards"></div>
+            <h2>Requests</h2><button type="button" id="requests-btn">hide section</button>
+            <div id="request-cards">
+                <div id="request-catagories"></div>
+                <div id="request-list"></div>
+            </div>
         </div>
 
         <dialog id="modal-box"></dialog>

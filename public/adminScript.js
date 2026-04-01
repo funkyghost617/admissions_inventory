@@ -256,3 +256,28 @@ addNewItem.addEventListener("click", (e) => {
             modalBox.innerHTML = "";
         })
 })
+
+const inventoryBtn = document.querySelector("#inventory-btn");
+inventoryBtn.addEventListener("click", (e) => {
+    if (inventoryCardsDiv.classList.contains("hidden")) {
+        inventoryCardsDiv.classList.remove("hidden");
+        inventoryBtn.textContent = "hide section";
+    } else {
+        inventoryCardsDiv.classList.add("hidden");
+        inventoryBtn.textContent = "show section";
+    }
+    
+})
+
+const requestsBtn = document.querySelector("#requests-btn");
+const requestCardsDiv = document.querySelector("#request-cards");
+requestsBtn.addEventListener("click", (e) => {
+    if (requestCardsDiv.classList.contains("hidden")) {
+        requestCardsDiv.classList.remove("hidden");
+        requestsBtn.textContent = "hide section";
+    } else {
+        requestCardsDiv.classList.add("hidden");
+        requestsBtn.textContent = "show section";
+    }
+    
+})

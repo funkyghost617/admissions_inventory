@@ -32,6 +32,10 @@
     display: none;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /*
 Source - https://stackoverflow.com/a/71486092
 Posted by Harvey Mushman
