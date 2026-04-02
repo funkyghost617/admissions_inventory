@@ -105,6 +105,24 @@ app.get("/requestinfo/:id", async (req, res) => {
     res.send(await getRequestInfo(req.params.id));
 })
 
+async function getInventoryItem(itemID) {
+    const { data, error } = await supabase
+        .from("Inventory")
+        .select("*")
+        .eq("id", Number(itemID));
+
+    if (error) {
+        console.error("Error fetching item:", error);
+    } else {
+        console.log("Item:", data);
+        return data;
+    }
+}
+
+app.get("/getinventoryitem/:id", async (req, res) => {
+    res.send(await getInventoryItem(req.params.id));
+})
+
 async function submitRequest(jsonRequest) {
     let fullRequest = JSON.parse(jsonRequest)
     const { data, error } = await supabase
@@ -126,15 +144,13 @@ app.get("/submitrequest/:id", async (req, res) => {
     res.send(JSON.stringify("success!"));
 })
 
-app.get("/submitadminpassword/:id", (req, res) => {
-    const submittedPassword = JSON.parse(req.params.id).password;
+app.post("/submitadminpassword", async (req, res) => {
+    const submittedPassword = req.body.password;
     console.log(submittedPassword);
     if (submittedPassword == adminPassword) {
-        res.send(JSON.stringify(true));
-        return;
+        res.send(JSON.stringify({ passwordResult: true }));
     } else {
-        res.send(JSON.stringify(false));
-        return;
+        res.send(JSON.stringify({ passwordResult: false }));
     }
 })
 

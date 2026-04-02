@@ -2,10 +2,23 @@ const passwordInput = document.querySelector("#password");
 const passwordPage = document.querySelector("#password-page");
 passwordInput.addEventListener("keydown", async (e) => {
     if (e.key === "Enter") {
-        const request = await fetch("./submitadminpassword/" + JSON.stringify({ password: passwordInput.value }));
-        const response = await request.json();
-        if (response) {
+        let isMatch = false;
+        const passwordReqObj = { password: passwordInput.value };
+        const request = await fetch("/submitadminpassword", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(passwordReqObj)
+        })
+        .then(async (response) => {
+            const responseData = await response.json();
+            isMatch = responseData.passwordResult;
+        });
+        if (isMatch) {
             passwordPage.classList.add("successful");
+            populateInventoryCards();
+            populateRequestCards();
         } else {
             passwordInput.value = "";
             alert("Incorrect password");
@@ -14,6 +27,9 @@ passwordInput.addEventListener("keydown", async (e) => {
         return;
     }
 })
+
+populateInventoryCards(); // remove when password page is implemented
+populateRequestCards();
 
 async function fetchInventoryFromServer(sort) {
     const response = await fetch("/inventory/" + sort);
@@ -31,6 +47,13 @@ async function fetchRequestsFromServer(status = "needs_approval") {
 
 async function fetchRequestInfosFromServer(requestID = null) {
     const response = await fetch("/requestinfo/" + requestID);
+    const jsonResponse = await response.json();
+    console.log(JSON.stringify(jsonResponse, null, 2));
+    return JSON.parse(JSON.stringify(jsonResponse, null, 2));
+}
+
+async function fetchInventoryItemFromServer(itemID) {
+    const response = await fetch("/getinventoryitem/" + String(itemID));
     const jsonResponse = await response.json();
     console.log(JSON.stringify(jsonResponse, null, 2));
     return JSON.parse(JSON.stringify(jsonResponse, null, 2));
@@ -256,7 +279,6 @@ async function populateInventoryCards(sort = "name") {
         })
     })
 }
-populateInventoryCards();
 
 const inventoryBtn = document.querySelector("#inventory-btn");
 const inventorySectionToHide = document.querySelector("#inventory-section-to-hide");
@@ -323,17 +345,25 @@ async function populateRequestCards(status) {
         requestCardsTableBody.appendChild(row);
 
         row.addEventListener("click", async (e) => {
-            let targetRequestInfo = JSON.stringify(await fetchRequestInfosFromServer(item.id));
-            const requestInfoPara = document.createElement("p");
-            requestInfoPara.textContent = targetRequestInfo;
-            modalBox.append(requestInfoPara);
+            let targetRequestInfo = JSON.parse(JSON.stringify(await fetchRequestInfosFromServer(item.id)));
+
+            targetRequestInfo.forEach(async (info) => {
+                const itemCard = document.createElement("div");
+                const itemDataFetch = await fetchInventoryItemFromServer(info.item_id);
+                const itemData = itemDataFetch[0];
+                const itemName = document.createElement("p");
+                itemName.textContent = itemData.name;
+                console.log(itemData);
+
+                itemCard.append(itemName);
+                modalBox.append(itemCard);
+            })
 
             modalBox.setAttribute("class", "request-modal");
             modalBox.showModal();
         })
     })
 }
-populateRequestCards();
 
 const requestsBtn = document.querySelector("#requests-btn");
 const requestSectionToHide = document.querySelector("#request-section-to-hide");
