@@ -1,12 +1,12 @@
-async function fetchInventoryFromServer() {
-    const response = await fetch("/inventory");
+async function fetchInventoryFromServer(sort = "name") {
+    const response = await fetch("/inventory/" + sort);
     const jsonResponse = await response.json();
     console.log(JSON.stringify(jsonResponse, null, 2));
     return JSON.parse(JSON.stringify(jsonResponse, null, 2));
 }
 
 async function fetchRequestsFromServer() {
-    const response = await fetch("/requests");
+    const response = await fetch("/requests/approved");
     const jsonResponse = await response.json();
     console.log(JSON.stringify(jsonResponse, null, 2));
     return JSON.parse(JSON.stringify(jsonResponse, null, 2));

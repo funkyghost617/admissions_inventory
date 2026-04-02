@@ -5,19 +5,39 @@
         <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
-        <div id="password-page" hidden>
+        <div id="password-page">
             <label for="password">Password: <input id="password" type="password" /></label>
         </div>
         <h1>Inventory admin page</h1>
         <div id="inventory-div">
-            <h2>Inventory</h2><button type="button" id="inventory-btn">hide section</button>
-            <div id="inventory-cards"></div>
+            <h2>Inventory <button type="button" id="inventory-btn">hide section</button></h2>
+            <div id="inventory-section-to-hide">
+                <div id="inventory-sorts">sort by: 
+                    <button type="button" id="sort-inventory-name-btn">name</button>
+                    <button type="button" id="sort-inventory-location-btn">location</button>
+                </div>
+                <div id="inventory-cards"></div>
+            </div>
         </div>
         <div id="requests-div">
-            <h2>Requests</h2><button type="button" id="requests-btn">hide section</button>
-            <div id="request-cards">
-                <div id="request-catagories"></div>
-                <div id="request-list"></div>
+            <h2>Requests <button type="button" id="requests-btn">hide section</button></h2>
+            <div id="request-section-to-hide">
+                <div id="request-catagories">see type: 
+                    <button type="button" id="view-requests-needs-approval-btn">needs approval</button>
+                    <button type="button" id="view-requests-approved-btn">approved</button>
+                    <button type="button" id="view-requests-archived-btn">archived</button>
+                </div>
+                <table id="request-table">
+                    <thead>
+                        <th>date received</th>
+                        <th>requester name</th>
+                        <th>requester email</th>
+                        <th>time start</th>
+                        <th>time end</th>
+                        <th>status</th>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
 

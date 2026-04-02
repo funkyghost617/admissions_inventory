@@ -24,10 +24,11 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient("https://csojncjvwtpnskbknqvi.supabase.co", "sb_publishable_IXyzkAJjqR0Z6bRy2KnY6g_3jS4BmBU");
 
-async function getInventory() {
+async function getInventory(sort = "name") {
     const { data, error } = await supabase
         .from("Inventory")
-        .select("*");
+        .select("*")
+        .order(sort, { ascending: true });
 
     if (error) {
         console.error("Error fetching items:", error);
@@ -37,13 +38,30 @@ async function getInventory() {
     }
 }
 
-async function getRequests() {
+async function getRequests(status) {
+    if (status == "all") {
+        const { dataALL, errorALL } = await supabase
+            .from("Requests")
+            .select("*")
+            .order("created_at", { ascending: false });
+            if (error) {
+                console.error("Error fetching requests:", error);
+                return error;
+            } else {
+                console.log("Requests:", data);
+                return data;
+            }
+    }
+
     const { data, error } = await supabase
         .from("Requests")
-        .select("*");
+        .select("*")
+        .eq("status", status.replace("_", " "))
+        .order("created_at", { ascending: status == "needs_approval" ? false : true });
 
     if (error) {
         console.error("Error fetching requests:", error);
+        return error;
     } else {
         console.log("Requests:", data);
         return data;
@@ -75,12 +93,12 @@ async function getRequestInfo(requestID) {
     }
 }
 
-app.get("/inventory", async (req, res) => {
-    res.send(await getInventory());
+app.get("/inventory/:id", async (req, res) => {
+    res.send(await getInventory(req.params.id));
 })
 
-app.get("/requests", async (req, res) => {
-    res.send(await getRequests());
+app.get("/requests/:id", async (req, res) => {
+    res.send(await getRequests(req.params.id));
 })
 
 app.get("/requestinfo/:id", async (req, res) => {

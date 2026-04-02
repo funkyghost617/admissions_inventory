@@ -36,6 +36,19 @@
     display: none !important;
 }
 
+#modal-box.inventory-modal[open] {
+    width: 500px;
+    height: 600px;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+#modal-box.inventory-modal img {
+    width: 400px;
+    height: auto;
+    max-height: 400px;
+}
+
 /*
 Source - https://stackoverflow.com/a/71486092
 Posted by Harvey Mushman

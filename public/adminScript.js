@@ -15,15 +15,15 @@ passwordInput.addEventListener("keydown", async (e) => {
     }
 })
 
-async function fetchInventoryFromServer() {
-    const response = await fetch("/inventory");
+async function fetchInventoryFromServer(sort) {
+    const response = await fetch("/inventory/" + sort);
     const jsonResponse = await response.json();
     console.log(JSON.stringify(jsonResponse, null, 2));
     return JSON.parse(JSON.stringify(jsonResponse, null, 2));
 }
 
-async function fetchRequestsFromServer() {
-    const response = await fetch("/requests");
+async function fetchRequestsFromServer(status = "needs_approval") {
+    const response = await fetch("/requests/" + status);
     const jsonResponse = await response.json();
     console.log(JSON.stringify(jsonResponse, null, 2));
     return JSON.parse(JSON.stringify(jsonResponse, null, 2));
@@ -36,18 +36,15 @@ async function fetchRequestInfosFromServer(requestID = null) {
     return JSON.parse(JSON.stringify(jsonResponse, null, 2));
 }
 
-let currentInventory = await fetchInventoryFromServer();
-let currentRequests = await fetchRequestsFromServer();
-let currentRequestInfos = [];
-currentRequests.forEach(async (item) => {
-    let targetRequestInfo = await fetchRequestInfosFromServer(item.id);
-    currentRequestInfos.push(targetRequestInfo);
-    console.log(currentRequestInfos);
-})
+let currentInventory;
 
 const modalBox = document.querySelector("#modal-box");
 const inventoryCardsDiv = document.querySelector("#inventory-cards");
-currentInventory.forEach(item => {
+async function populateInventoryCards(sort = "name") {
+    currentInventory = await fetchInventoryFromServer(sort);
+    inventoryCardsDiv.innerHTML = "";
+
+    currentInventory.forEach(item => {
     const card = document.createElement("div");
     card.setAttribute("item-id", item.id);
     const name = document.createElement("h3");
@@ -99,6 +96,7 @@ currentInventory.forEach(item => {
         btnDiv.append(deleteBtn, cancelBtn, submitBtn);
         modalBox.append(btnDiv);
 
+        modalBox.setAttribute("class", "inventory-modal");
         modalBox.showModal();
 
         deleteBtn.addEventListener("click", async (e) => {
@@ -160,15 +158,15 @@ currentInventory.forEach(item => {
             modalBox.innerHTML = "";
         })
     })
-})
-
-const addNewItem = document.createElement("div");
-const addNewItemPara = document.createElement("p");
-addNewItemPara.textContent = "add new item";
-addNewItem.append(addNewItemPara);
-inventoryCardsDiv.append(addNewItem);
-addNewItem.addEventListener("click", (e) => {
-    const nameInput = document.createElement("input");
+    })
+    
+    const addNewItem = document.createElement("div");
+    const addNewItemPara = document.createElement("p");
+    addNewItemPara.textContent = "add new item";
+    addNewItem.append(addNewItemPara);
+    inventoryCardsDiv.append(addNewItem);
+    addNewItem.addEventListener("click", (e) => {
+        const nameInput = document.createElement("input");
         nameInput.setAttribute("type", "text");
         nameInput.setAttribute("placeholder", "Item name");
         const imgEx = document.createElement("img");
@@ -196,6 +194,7 @@ addNewItem.addEventListener("click", (e) => {
         btnDiv.append(cancelBtn, submitBtn);
         modalBox.append(btnDiv);
 
+        modalBox.setAttribute("class", "inventory-modal");
         modalBox.showModal();
 
         cancelBtn.addEventListener("click", (e) => {
@@ -255,29 +254,143 @@ addNewItem.addEventListener("click", (e) => {
 
             modalBox.innerHTML = "";
         })
-})
+    })
+}
+populateInventoryCards();
 
 const inventoryBtn = document.querySelector("#inventory-btn");
+const inventorySectionToHide = document.querySelector("#inventory-section-to-hide");
 inventoryBtn.addEventListener("click", (e) => {
-    if (inventoryCardsDiv.classList.contains("hidden")) {
-        inventoryCardsDiv.classList.remove("hidden");
+    if (inventorySectionToHide.classList.contains("hidden")) {
+        inventorySectionToHide.classList.remove("hidden");
         inventoryBtn.textContent = "hide section";
     } else {
-        inventoryCardsDiv.classList.add("hidden");
+        inventorySectionToHide.classList.add("hidden");
         inventoryBtn.textContent = "show section";
     }
     
 })
 
+const inventorySortNameBtn = document.querySelector("#sort-inventory-name-btn");
+const inventorySortLocationBtn = document.querySelector("#sort-inventory-location-btn");
+inventorySortNameBtn.classList.add("selected");
+inventorySortNameBtn.addEventListener("click", async (e) => {
+    if (inventorySortNameBtn.classList.contains("selected")) {
+        return;
+    } else {
+        inventorySortNameBtn.classList.add("loading");
+        inventorySortLocationBtn.classList.remove("selected");
+        await populateInventoryCards("name");
+        inventorySortNameBtn.classList.remove("loading");
+        inventorySortNameBtn.classList.add("selected");
+    }
+})
+inventorySortLocationBtn.addEventListener("click", async (e) => {
+    if (inventorySortLocationBtn.classList.contains("selected")) {
+        return;
+    } else {
+        inventorySortLocationBtn.classList.add("loading");
+        inventorySortNameBtn.classList.remove("selected");
+        await populateInventoryCards("location");
+        inventorySortLocationBtn.classList.remove("loading");
+        inventorySortLocationBtn.classList.add("selected");
+    }
+})
+
+let currentRequests;
+
+const requestCardsTableBody = document.querySelector("#request-table > tbody");
+async function populateRequestCards(status) {
+    currentRequests = await fetchRequestsFromServer(status);
+    requestCardsTableBody.innerHTML = "";
+    currentRequests.forEach(async (item) => {
+        const row = document.createElement("tr");
+        row.setAttribute("request-id", item.id);
+        const requestCreated = document.createElement("td");
+        requestCreated.textContent = item.created_at.split("T")[0];
+        const requesterName = document.createElement("td");
+        requesterName.textContent = item.name;
+        const requesterEmail = document.createElement("td");
+        requesterEmail.textContent = item.email;
+        const requestTimeStart = document.createElement("td");
+        requestTimeStart.textContent = item.time_start;
+        const requestTimeEnd = document.createElement("td");
+        requestTimeEnd.textContent = item.time_end;
+        const requestStatus = document.createElement("td");
+        requestStatus.textContent = item.status;
+
+        row.append(requestCreated, requesterName, requesterEmail, requestTimeStart, requestTimeEnd, requestStatus);
+        requestCardsTableBody.appendChild(row);
+
+        row.addEventListener("click", async (e) => {
+            let targetRequestInfo = JSON.stringify(await fetchRequestInfosFromServer(item.id));
+            const requestInfoPara = document.createElement("p");
+            requestInfoPara.textContent = targetRequestInfo;
+            modalBox.append(requestInfoPara);
+
+            modalBox.setAttribute("class", "request-modal");
+            modalBox.showModal();
+        })
+    })
+}
+populateRequestCards();
+
 const requestsBtn = document.querySelector("#requests-btn");
-const requestCardsDiv = document.querySelector("#request-cards");
+const requestSectionToHide = document.querySelector("#request-section-to-hide");
 requestsBtn.addEventListener("click", (e) => {
-    if (requestCardsDiv.classList.contains("hidden")) {
-        requestCardsDiv.classList.remove("hidden");
+    if (requestSectionToHide.classList.contains("hidden")) {
+        requestSectionToHide.classList.remove("hidden");
         requestsBtn.textContent = "hide section";
     } else {
-        requestCardsDiv.classList.add("hidden");
+        requestSectionToHide.classList.add("hidden");
         requestsBtn.textContent = "show section";
     }
     
+})
+
+const requestViewNeedsApprovalBtn = document.querySelector("#view-requests-needs-approval-btn");
+const requestViewApprovedBtn = document.querySelector("#view-requests-approved-btn");
+const requestViewArchivedBtn = document.querySelector("#view-requests-archived-btn");
+requestViewNeedsApprovalBtn.classList.add("selected");
+requestViewNeedsApprovalBtn.addEventListener("click", async (e) => {
+    if (requestViewNeedsApprovalBtn.classList.contains("selected")) {
+        return;
+    } else {
+        requestViewNeedsApprovalBtn.classList.add("loading");
+        requestViewApprovedBtn.classList.remove("selected");
+        requestViewArchivedBtn.classList.remove("selected");
+        await populateRequestCards("needs_approval");
+        requestViewNeedsApprovalBtn.classList.remove("loading");
+        requestViewNeedsApprovalBtn.classList.add("selected");
+    }
+})
+requestViewApprovedBtn.addEventListener("click", async (e) => {
+    if (requestViewApprovedBtn.classList.contains("selected")) {
+        return;
+    } else {
+        requestViewNeedsApprovalBtn.classList.remove("selected");
+        requestViewApprovedBtn.classList.add("loading");
+        requestViewArchivedBtn.classList.remove("selected");
+        await populateRequestCards("approved");
+        requestViewApprovedBtn.classList.remove("loading");
+        requestViewApprovedBtn.classList.add("selected");
+    }
+})
+requestViewArchivedBtn.addEventListener("click", async (e) => {
+    if (requestViewArchivedBtn.classList.contains("selected")) {
+        return;
+    } else {
+        requestViewNeedsApprovalBtn.classList.remove("selected");
+        requestViewApprovedBtn.classList.remove("selected");
+        requestViewArchivedBtn.classList.add("loading");
+        await populateRequestCards("archived");
+        requestViewArchivedBtn.classList.remove("loading");
+        requestViewArchivedBtn.classList.add("selected");
+    }
+})
+
+modalBox.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        modalBox.innerHTML = "";
+    }
 })
