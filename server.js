@@ -102,6 +102,21 @@ async function getRequestInfo(requestID) {
   }
 }
 
+async function getRequest(requestID) {
+  const { data, error } = await supabase
+    .from("Requests")
+    .select("*")
+    .eq("id", requestID);
+
+  if (error) {
+    console.error("Error fetching request:", error);
+    return error;
+  } else {
+    console.log("Request:", data);
+    return data;
+  }
+}
+
 app.get("/inventory/:id", async (req, res) => {
   res.send(await getInventory(req.params.id));
 });
@@ -112,6 +127,10 @@ app.get("/requests/:id", async (req, res) => {
 
 app.get("/requestinfo/:id", async (req, res) => {
   res.send(await getRequestInfo(req.params.id));
+});
+
+app.get("/request/:id", async (req, res) => {
+  res.send(await getRequest(req.params.id));
 });
 
 async function getInventoryItem(itemID) {
