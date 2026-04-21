@@ -19,38 +19,6 @@ async function fetchRequestInfosFromServer(requestID = null) {
   return JSON.parse(JSON.stringify(jsonResponse, null, 2));
 }
 
-let currentInventory = await fetchInventoryFromServer();
-let currentRequests = await fetchRequestsFromServer();
-let currentRequestInfos = [];
-currentRequests.forEach(async (item) => {
-  let targetRequestInfo = await fetchRequestInfosFromServer(item.id);
-  currentRequestInfos.push(targetRequestInfo);
-  console.log(currentRequestInfos);
-});
-
-const inventoryCardsDiv = document.querySelector("#inventory-cards");
-currentInventory.forEach((item) => {
-  const card = document.createElement("div");
-  const name = document.createElement("h3");
-  name.textContent = item.name;
-  const image = document.createElement("img");
-  image.setAttribute("src", item.image_link);
-  const location = document.createElement("p");
-  location.textContent = `Location: ${item.location}`;
-  const quantity = document.createElement("p");
-  quantity.textContent = `Total quantity: ${item.quantity}`;
-  const selectAmount = document.createElement("select");
-  selectAmount.setAttribute("item-id", item.id);
-  for (let i = 0; i < item.quantity + 1; i++) {
-    const selectOption = document.createElement("option");
-    selectOption.textContent = i;
-    selectAmount.appendChild(selectOption);
-  }
-
-  card.append(name, image, location, quantity, selectAmount);
-  inventoryCardsDiv.appendChild(card);
-});
-
 const options = {
   weekday: "short",
   month: "short",
@@ -100,6 +68,51 @@ currentTimeEnd.textContent = new Date(timeEndInput.value).toLocaleString(
   "en-US",
   options,
 );
+
+let currentInventory = await fetchInventoryFromServer();
+let currentRequests = await fetchRequestsFromServer();
+let currentRequestInfos = [];
+currentRequests.forEach(async (item) => {
+  let targetRequestInfo = await fetchRequestInfosFromServer(item.id);
+  currentRequestInfos.push(targetRequestInfo);
+  console.log(currentRequestInfos);
+});
+
+const inventoryCardsDiv = document.querySelector("#inventory-cards");
+currentInventory.forEach((item) => {
+  const card = document.createElement("div");
+  const name = document.createElement("h3");
+  name.textContent = item.name;
+  const image = document.createElement("img");
+  image.setAttribute("src", item.image_link);
+  const location = document.createElement("p");
+  location.textContent = `Location: ${item.location}`;
+  const quantity = document.createElement("p");
+  quantity.textContent = `Total quantity: ${item.quantity}`;
+  const selectAmount = document.createElement("select");
+  selectAmount.setAttribute("item-id", item.id);
+  for (let i = 0; i <= item.quantity; i++) {
+    const selectOption = document.createElement("option");
+    selectOption.textContent = i;
+    selectAmount.appendChild(selectOption);
+  }
+
+  currentRequests.forEach((request) => {
+    const requestTimeStart = new Date(request["time_start"]);
+    const requestTimeEnd = new Date(request["time_end"]);
+    const inputTimeStart = new Date(timeStartInput.value);
+    const inputTimeEnd = new Date(timeEndInput.value);
+    if (
+      (requestTimeStart > inputTimeStart && requestTimeStart < inputTimeEnd) ||
+      (requestTimeEnd > inputTimeStart && requestTimeEnd < inputTimeEnd)
+    ) {
+      console.log("help");
+    }
+  });
+
+  card.append(name, image, location, quantity, selectAmount);
+  inventoryCardsDiv.appendChild(card);
+});
 
 const nameInput = document.querySelector("#name");
 nameInput.value = "";
