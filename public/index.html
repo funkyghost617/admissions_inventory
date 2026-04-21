@@ -1,7 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
-        <link rel="icon" href="https://png.pngtree.com/png-clipart/20250515/original/pngtree-retro-8-bit-happy-face-icon-with-transparent-background-vector-png-image_20989366.png" />
+        <link
+            rel="icon"
+            href="https://png.pngtree.com/png-clipart/20250515/original/pngtree-retro-8-bit-happy-face-icon-with-transparent-background-vector-png-image_20989366.png"
+        />
         <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
@@ -11,19 +14,36 @@
             <label for="name">Name: <input id="name" type="text" /></label>
             <label for="email">Email: <input id="email" type="email" /></label>
             <div id="date-time-info">
-                <label for="time-start">Time start: <input id="time-start" type="datetime-local" /></label>
-                <label for="time-end">Time end: <input id="time-end" type="datetime-local" /></label>
+                <label for="time-start"
+                    >Time start: <input id="time-start" type="datetime-local"
+                /></label>
+                <label for="time-end"
+                    >Time end: <input id="time-end" type="datetime-local"
+                /></label>
                 <br />
-                <span id="current-time-start"></span><span id="current-time-end"></span>
+                <span id="current-time-start"></span
+                ><span id="current-time-end"></span>
             </div>
         </div>
-        
+
         <div id="inventory-div">
             <h2>Inventory</h2>
             <div id="inventory-cards"></div>
         </div>
         <button type="button" id="submit-btn">submit request</button>
 
+        <dialog id="modal-box">
+            <p>
+                Your request was successfully received! We will review it and
+                get back to you within 3 business days.
+            </p>
+            <p>
+                For follow-up questions, contact Lawrence Hapeman
+                (hapeman.l@wustl.edu)
+            </p>
+            <a target="_blank" id="print-request-link">Print request as PDF</a>
+            <a href="/">Submit another request</a>
+        </dialog>
 
         <script src="./script.js" type="module"></script>
     </body>

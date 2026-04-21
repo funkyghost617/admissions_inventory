@@ -21,6 +21,10 @@ app.get("/admin", async (req, res) => {
   const { error } = await supabase.auth.signOut();
 });
 
+app.get("/pdf/request/:id", async (req, res) => {
+  sendFileAsync("public/requestPDF.html", res);
+});
+
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -144,11 +148,13 @@ async function submitRequest(jsonRequest) {
     };
     const { error } = await supabase.from("Requests (info)").insert(infoObj);
   });
+  return data[0].id;
 }
 
 app.get("/submitrequest/:id", async (req, res) => {
-  await submitRequest(req.params.id);
-  res.send(JSON.stringify("success!"));
+  const requestID = await submitRequest(req.params.id);
+  console.log(requestID);
+  res.send(JSON.stringify(requestID));
 });
 
 app.post("/submitadminlogin", async (req, res) => {
