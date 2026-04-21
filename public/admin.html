@@ -1,33 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
-        <link rel="icon" href="https://png.pngtree.com/png-clipart/20250515/original/pngtree-retro-8-bit-happy-face-icon-with-transparent-background-vector-png-image_20989366.png" />
+        <link
+            rel="icon"
+            href="https://png.pngtree.com/png-clipart/20250515/original/pngtree-retro-8-bit-happy-face-icon-with-transparent-background-vector-png-image_20989366.png"
+        />
         <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
-        <div id="password-page" hidden>
+        <div id="password-page">
             <label for="email">Email: <input id="email" type="email" /></label>
-            <label for="password">Password: <input id="password" type="password" /></label>
+            <label for="password"
+                >Password: <input id="password" type="password"
+            /></label>
         </div>
         <h1>Inventory admin page</h1>
         <p><a href="/">request page</a></p>
         <div id="inventory-div">
-            <h2>Inventory <button type="button" id="inventory-btn">hide section</button></h2>
+            <h2>
+                Inventory
+                <button type="button" id="inventory-btn">hide section</button>
+            </h2>
             <div id="inventory-section-to-hide">
-                <div id="inventory-sorts">sort by: 
-                    <button type="button" id="sort-inventory-name-btn">name</button>
-                    <button type="button" id="sort-inventory-location-btn">location</button>
+                <div id="inventory-sorts">
+                    sort by:
+                    <button type="button" id="sort-inventory-name-btn">
+                        name
+                    </button>
+                    <button type="button" id="sort-inventory-location-btn">
+                        location
+                    </button>
                 </div>
                 <div id="inventory-cards"></div>
             </div>
         </div>
         <div id="requests-div">
-            <h2>Requests <button type="button" id="requests-btn">hide section</button></h2>
+            <h2>
+                Requests
+                <button type="button" id="requests-btn">hide section</button>
+            </h2>
             <div id="request-section-to-hide">
-                <div id="request-catagories">see type: 
-                    <button type="button" id="view-requests-needs-approval-btn">needs approval</button>
-                    <button type="button" id="view-requests-approved-btn">approved</button>
-                    <button type="button" id="view-requests-archived-btn">archived</button>
+                <div id="request-catagories">
+                    see type:
+                    <button type="button" id="view-requests-needs-approval-btn">
+                        needs approval
+                    </button>
+                    <button type="button" id="view-requests-approved-btn">
+                        approved
+                    </button>
+                    <button type="button" id="view-requests-denied-btn">
+                        denied
+                    </button>
+                    <button type="button" id="view-requests-archived-btn">
+                        archived
+                    </button>
                 </div>
                 <table id="request-table">
                     <thead>
