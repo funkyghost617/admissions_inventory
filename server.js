@@ -5,19 +5,20 @@ import fs from "node:fs/promises";
 const app = express();
 const port = process.env.PORT || 3000;
 const __dirname = "./";
-const adminPassword = "Huh67";
 
 // serve static files from github pages project
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
 // define a basic route for the root
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
     sendFileAsync("public/index.html", res);
+    const { error } = await supabase.auth.signOut();
 });
 
-app.get("/admin", (req, res) => {
+app.get("/admin", async (req, res) => {
     sendFileAsync("public/admin.html", res);
+    const { error } = await supabase.auth.signOut();
 });
 
 import { createClient } from "@supabase/supabase-js";
@@ -83,7 +84,8 @@ async function getRequestInfo(requestID) {
         const { data, error } = await supabase
             .from("Requests (info)")
             .select("*")
-            .eq("request_id", requestID);
+            .eq("request_id", requestID)
+            .order("item_id", {ascending: true});
         if (error) {
             console.error("Error fetching request info:", error);
         } else {
@@ -144,14 +146,13 @@ app.get("/submitrequest/:id", async (req, res) => {
     res.send(JSON.stringify("success!"));
 })
 
-app.post("/submitadminpassword", async (req, res) => {
+app.post("/submitadminlogin", async (req, res) => {
+    const submittedEmail = req.body.email;
     const submittedPassword = req.body.password;
-    console.log(submittedPassword);
-    if (submittedPassword == adminPassword) {
-        res.send(JSON.stringify({ passwordResult: true }));
-    } else {
-        res.send(JSON.stringify({ passwordResult: false }));
-    }
+    console.log(submittedEmail, submittedPassword);
+    const { data, error } = await supabase.auth.signInWithPassword(req.body);
+    console.log(data, error);
+    res.send(data.user != null ? data.user : error);
 })
 
 async function submitInventoryUpdate(jsonRequest) {
@@ -200,6 +201,19 @@ async function deleteInventoryItem(requestedID) {
 
 app.get("/deleteinventoryitem/:id", async (req, res) => {
     await deleteInventoryItem(req.params.id);
+    res.send(JSON.stringify("success!"));
+})
+
+async function deleteRequestItem(requestedID) {
+    const response = await supabase
+        .from("Requests")
+        .delete()
+        .eq("id", Number(requestedID));
+    console.log("success!");
+}
+
+app.get("/deleterequestitem/:id", async (req, res) => {
+    await deleteRequestItem(req.params.id);
     res.send(JSON.stringify("success!"));
 })
 

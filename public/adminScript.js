@@ -1,34 +1,90 @@
+const options = {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+};
+
+const emailInput = document.querySelector("#email");
 const passwordInput = document.querySelector("#password");
 const passwordPage = document.querySelector("#password-page");
 passwordInput.addEventListener("keydown", async (e) => {
     if (e.key === "Enter") {
         let isMatch = false;
-        const passwordReqObj = { password: passwordInput.value };
-        const request = await fetch("/submitadminpassword", {
+        const loginObj = { 
+            email: emailInput.value,
+            password: passwordInput.value 
+        };
+        const request = await fetch("/submitadminlogin", {
                 method: "POST",
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(passwordReqObj)
+                body: JSON.stringify(loginObj)
         })
         .then(async (response) => {
             const responseData = await response.json();
-            isMatch = responseData.passwordResult;
+            console.log(responseData);
+            if (!responseData.__isAuthError) {
+                isMatch = true;
+            }
         });
         if (isMatch) {
             passwordPage.classList.add("successful");
             populateInventoryCards();
             populateRequestCards();
         } else {
+            emailInput.value = "";
             passwordInput.value = "";
-            alert("Incorrect password");
+            alert("Incorrect login");
+        }
+    } else {
+        return;
+    }
+})
+emailInput.addEventListener("keydown", async (e) => { //currently copied directly from above
+    if (e.key === "Enter") {
+        let isMatch = false;
+        const loginObj = { 
+            email: emailInput.value,
+            password: passwordInput.value 
+        };
+        emailInput.disabled = true;
+        passwordInput.disabled = true;
+        const request = await fetch("/submitadminlogin", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(loginObj)
+        })
+        .then(async (response) => {
+            const responseData = await response.json();
+            console.log(responseData);
+            if (!responseData.__isAuthError) {
+                isMatch = true;
+            }
+        });
+        if (isMatch) {
+            passwordPage.classList.add("successful");
+            populateInventoryCards();
+            populateRequestCards();
+        } else {
+            emailInput.value = "";
+            passwordInput.value = "";
+            emailInput.disabled = false;
+            passwordInput.disabled = false;
+            alert("Incorrect login");
         }
     } else {
         return;
     }
 })
 
-populateInventoryCards(); // remove when password page is implemented
+populateInventoryCards();
 populateRequestCards();
 
 async function fetchInventoryFromServer(sort) {
@@ -83,6 +139,10 @@ async function populateInventoryCards(sort = "name") {
     inventoryCardsDiv.appendChild(card);
 
     card.addEventListener("click", (e) => {
+        const modalTitle = document.createElement("h2");
+        modalTitle.textContent = "Item info";
+        modalBox.append(modalTitle);
+
         const nameInput = document.createElement("input");
         nameInput.setAttribute("type", "text");
         nameInput.setAttribute("placeholder", "Item name");
@@ -189,6 +249,10 @@ async function populateInventoryCards(sort = "name") {
     addNewItem.append(addNewItemPara);
     inventoryCardsDiv.append(addNewItem);
     addNewItem.addEventListener("click", (e) => {
+        const modalTitle = document.createElement("h2");
+        modalTitle.textContent = "Add an item to inventory";
+        modalBox.append(modalTitle);
+
         const nameInput = document.createElement("input");
         nameInput.setAttribute("type", "text");
         nameInput.setAttribute("placeholder", "Item name");
@@ -346,21 +410,82 @@ async function populateRequestCards(status) {
 
         row.addEventListener("click", async (e) => {
             let targetRequestInfo = JSON.parse(JSON.stringify(await fetchRequestInfosFromServer(item.id)));
-
-            targetRequestInfo.forEach(async (info) => {
-                const itemCard = document.createElement("div");
-                const itemDataFetch = await fetchInventoryItemFromServer(info.item_id);
-                const itemData = itemDataFetch[0];
-                const itemName = document.createElement("p");
-                itemName.textContent = itemData.name;
-                console.log(itemData);
-
-                itemCard.append(itemName);
-                modalBox.append(itemCard);
-            })
+            const modalTitle = document.createElement("h2");
+            modalTitle.textContent = "Request info";
+            modalBox.append(modalTitle);
 
             modalBox.setAttribute("class", "request-modal");
             modalBox.showModal();
+
+            for (let i = 0; i < targetRequestInfo.length; i++) {
+                let info = targetRequestInfo[i];
+                const itemCard = document.createElement("div");
+                const itemDataFetch = await fetchInventoryItemFromServer(info.item_id);
+                const itemData = itemDataFetch[0];
+                console.log(itemData);
+                const itemImgDiv = document.createElement("div");
+                const itemImg = document.createElement("img");
+                itemImg.setAttribute("src", itemData.image_link);
+                itemImgDiv.append(itemImg);
+                const itemName = document.createElement("p");
+                itemName.textContent = itemData.name;
+                const itemLoca = document.createElement("p");
+                itemLoca.textContent = `(${itemData.location})`;
+                const itemRequestQuantity = document.createElement("p");
+                itemRequestQuantity.textContent = `Count: ${info.quantity}`;
+
+                itemCard.append(itemImgDiv, itemName, itemLoca, itemRequestQuantity);
+                modalBox.append(itemCard);
+            }
+
+            const requestTimestamps = document.createElement("p");
+            requestTimestamps.textContent = `Requested time: ${new Date(item.time_start).toLocaleString("en-US", options)} - ${new Date(item.time_end).toLocaleString("en-US", options)}`;
+            modalBox.append(requestTimestamps);
+            const requesterInfoPara = document.createElement("p");
+            requesterInfoPara.textContent = `Requested by ${item.name} (${item.email}) on ${item.created_at.split("T")[0]}`;
+            modalBox.append(requesterInfoPara);
+            const requestStatus = document.createElement("select");
+            const statusOptions = ["needs approval", "approved", "denied", "archived"];
+            for (let i = 0; i < statusOptions.length; i++) {
+                const option = document.createElement("option");
+                option.textContent = statusOptions[i];
+                requestStatus.appendChild(option);
+            }
+            requestStatus.value = item.status;
+            modalBox.append(requestStatus);
+            requestStatus.addEventListener("change", async (e) => {
+                requestStatus.disabled = true;
+                
+            })
+
+            const btnDiv = document.createElement("div");
+            const deleteBtn = document.createElement("button");
+            deleteBtn.setAttribute("type", "button");
+            deleteBtn.textContent = "delete";
+            const cancelBtn = document.createElement("button");
+            cancelBtn.setAttribute("type", "button");
+            cancelBtn.textContent = "cancel";
+            btnDiv.append(deleteBtn, cancelBtn);
+            modalBox.append(btnDiv);
+            
+            deleteBtn.addEventListener("click", async (e) => {
+                const isConfirmed = confirm("Are you sure you want to delete this request? This is irreversible");
+                if (isConfirmed) {
+                    const response = await fetch("/deleterequestitem/" + item.id);
+                    const jsonResponse = await response.json();
+                    console.log(JSON.stringify(jsonResponse, null, 2));
+                    row.remove();
+                    modalBox.close();
+                    modalBox.innerHTML = "";
+                } else {
+                    return;
+                }
+            })
+            cancelBtn.addEventListener("click", (e) => {
+                modalBox.close();
+                modalBox.innerHTML = "";
+            })
+
         })
     })
 }

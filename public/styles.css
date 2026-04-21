@@ -36,17 +36,54 @@
     display: none !important;
 }
 
-#modal-box.inventory-modal[open] {
+#modal-box {
     width: 500px;
     height: 600px;
+}
+
+#modal-box[open] {
     display: flex;
     flex-flow: column nowrap;
+    gap: 5px;
 }
 
 #modal-box.inventory-modal img {
     width: 400px;
     height: auto;
     max-height: 400px;
+}
+
+#modal-box.request-modal[open] > div {
+    display: flex;
+    flex-flow: row nowrap;
+    height: 50px;
+    align-items: center;
+}
+
+#modal-box.request-modal[open] img {
+    height: 50px;
+    width: auto;
+}
+
+#modal-box.request-modal[open] div:has(img) {
+    width: 100px;
+    flex-shrink: 0;
+}
+
+#modal-box.request-modal[open] > div > p:nth-child(2),
+#modal-box.request-modal[open] > div > p:nth-child(3) {
+    width: 100px;
+    border: 2px solid black;
+    height: 100%;
+    flex-shrink: 0;
+    white-space: pre;
+}
+
+#modal-box.request-modal[open] > div > p:nth-child(4) {
+    width: 75px;
+    border: 2px solid black;
+    height: 100%;
+    flex-shrink: 0;
 }
 
 /*
