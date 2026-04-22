@@ -69,14 +69,78 @@ currentTimeEnd.textContent = new Date(timeEndInput.value).toLocaleString(
   options,
 );
 
+let isTimingConflict = false;
+function updateTimingConflict() {
+  let isTimingConflictNow = false;
+  currentRequests.forEach((request) => {
+    const requestTimeStart = new Date(request["time_start"]);
+    const requestTimeEnd = new Date(request["time_end"]);
+    const inputTimeStart = new Date(timeStartInput.value);
+    const inputTimeEnd = new Date(timeEndInput.value);
+    if (
+      (requestTimeStart > inputTimeStart && requestTimeStart < inputTimeEnd) ||
+      (requestTimeEnd > inputTimeStart && requestTimeEnd < inputTimeEnd)
+    ) {
+      isTimingConflictNow = true;
+    }
+  });
+  isTimingConflict = isTimingConflictNow;
+  console.log(isTimingConflict);
+}
+
+function updateWithConflicts(invItem, quantityEle, selectAmountEle) {
+  const selectedValue = Number(selectAmountEle.value);
+  if (!isTimingConflict) {
+    selectAmountEle.innerHTML = "";
+    for (let i = 0; i <= invItem.quantity; i++) {
+      const selectOption = document.createElement("option");
+      selectOption.textContent = i;
+      selectAmountEle.appendChild(selectOption);
+    }
+    selectAmountEle.value = selectedValue;
+    quantityEle.textContent = `Total quantity: ${invItem.quantity}`;
+    return;
+  }
+
+  console.log(currentRequestInfos);
+  for (let i = 0; i < currentRequests.length; i++) {
+    const requestInfoArray = currentRequestInfos[`request_${i}`];
+    for (let j = 0; j < requestInfoArray.length; j++) {
+      let infoObj = requestInfoArray[j];
+      if (invItem.id == infoObj["item_id"]) {
+        let newAvailableQuantity =
+          selectAmountEle.childNodes.length - 1 - infoObj["quantity"];
+        if (newAvailableQuantity < 0) {
+          newAvailableQuantity = 0;
+        }
+        selectAmountEle.innerHTML = "";
+        for (let i = 0; i <= newAvailableQuantity; i++) {
+          const selectOption = document.createElement("option");
+          selectOption.textContent = i;
+          selectAmountEle.appendChild(selectOption);
+        }
+        if (selectedValue <= newAvailableQuantity) {
+          selectAmountEle.value = selectedValue;
+        } else {
+          selectAmountEle.value = newAvailableQuantity;
+        }
+        quantityEle.textContent = `Total quantity: ${invItem.quantity} (${newAvailableQuantity} available during requested timeframe)`;
+      }
+    }
+  }
+}
+
 let currentInventory = await fetchInventoryFromServer();
 let currentRequests = await fetchRequestsFromServer();
-let currentRequestInfos = [];
-currentRequests.forEach(async (item) => {
-  let targetRequestInfo = await fetchRequestInfosFromServer(item.id);
-  currentRequestInfos.push(targetRequestInfo);
-  console.log(currentRequestInfos);
-});
+let currentRequestInfos = {};
+for (let i = 0; i < currentRequests.length; i++) {
+  let targetRequestInfo = await fetchRequestInfosFromServer(
+    currentRequests[0].id,
+  );
+  currentRequestInfos[`request_${i}`] = targetRequestInfo;
+}
+console.log(currentRequestInfos);
+updateTimingConflict();
 
 const inventoryCardsDiv = document.querySelector("#inventory-cards");
 currentInventory.forEach((item) => {
@@ -97,17 +161,10 @@ currentInventory.forEach((item) => {
     selectAmount.appendChild(selectOption);
   }
 
-  currentRequests.forEach((request) => {
-    const requestTimeStart = new Date(request["time_start"]);
-    const requestTimeEnd = new Date(request["time_end"]);
-    const inputTimeStart = new Date(timeStartInput.value);
-    const inputTimeEnd = new Date(timeEndInput.value);
-    if (
-      (requestTimeStart > inputTimeStart && requestTimeStart < inputTimeEnd) ||
-      (requestTimeEnd > inputTimeStart && requestTimeEnd < inputTimeEnd)
-    ) {
-      console.log("help");
-    }
+  updateWithConflicts(item, quantity, selectAmount);
+  timeStartInput.addEventListener("change", (e) => {
+    updateTimingConflict();
+    updateWithConflicts(item, quantity, selectAmount);
   });
 
   card.append(name, image, location, quantity, selectAmount);
