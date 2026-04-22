@@ -457,6 +457,9 @@ async function populateRequestCards(status) {
       const requesterInfoPara = document.createElement("p");
       requesterInfoPara.textContent = `Requested by ${item.name} (${item.email}) on ${item.created_at.split("T")[0]}`;
       modalBox.append(requesterInfoPara);
+      const requestNotesPara = document.createElement("p");
+      requestNotesPara.textContent = `Notes: ${item.notes != null ? item.notes : "none"}`;
+      modalBox.append(requestNotesPara);
       const requestStatusSelector = document.createElement("select");
       const statusOptions = [
         "needs approval",
