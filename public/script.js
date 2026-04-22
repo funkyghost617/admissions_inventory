@@ -175,6 +175,8 @@ const nameInput = document.querySelector("#name");
 nameInput.value = "";
 const emailInput = document.querySelector("#email");
 emailInput.value = "";
+const notesInput = document.querySelector("textarea");
+notesInput.value = "";
 
 const itemQuantitySelectors = document.querySelectorAll(
   "#inventory-cards select",
@@ -209,6 +211,7 @@ submitBtn.addEventListener("click", async (e) => {
     email: emailInput.value,
     time_start: timeStartInput.value,
     time_end: timeEndInput.value,
+    notes: notesInput.value,
   };
 
   let requestInfoArray = [];

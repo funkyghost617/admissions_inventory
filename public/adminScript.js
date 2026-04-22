@@ -445,7 +445,43 @@ async function populateRequestCards(status) {
         const itemLoca = document.createElement("p");
         itemLoca.textContent = `(${itemData.location})`;
         const itemRequestQuantity = document.createElement("p");
-        itemRequestQuantity.textContent = `Count: ${info.quantity}`;
+        let availableQuantity = itemData.quantity;
+        if (item.status != "approved") {
+          const approvedRequests = await fetchRequestsFromServer("approved");
+          const currentRequestTimeStart = new Date(item.time_start);
+          const currentRequestTimeEnd = new Date(item.time_end);
+          approvedRequests.forEach(async (requestItem) => {
+            const testTimeStart = new Date(requestItem.time_start);
+            const testTimeEnd = new Date(requestItem.time_end);
+            const isTimingConflict =
+              (currentRequestTimeStart > testTimeStart &&
+                currentRequestTimeStart < testTimeEnd) ||
+              (currentRequestTimeEnd > testTimeStart &&
+                currentRequestTimeEnd < testTimeEnd);
+            console.log(isTimingConflict);
+            if (isTimingConflict) {
+              const relevantRequestInfos = JSON.parse(
+                JSON.stringify(
+                  await fetchRequestInfosFromServer(requestItem.id),
+                ),
+              );
+              const relevantItem = relevantRequestInfos.find(
+                (element) => element.item_id == itemData.id,
+              );
+              if (relevantItem != undefined) {
+                console.log("there is a relevant item!");
+                console.log(availableQuantity);
+                availableQuantity -= relevantItem.quantity;
+                if (availableQuantity < info.quantity) {
+                  itemRequestQuantity.textContent = `Count: ${info.quantity} (only ${availableQuantity} available during requested time)`;
+                  itemRequestQuantity.classList.add("unavailable-quantity");
+                } else {
+                  itemRequestQuantity.textContent = `Count: ${info.quantity}`;
+                }
+              }
+            }
+          });
+        }
 
         itemCard.append(itemImgDiv, itemName, itemLoca, itemRequestQuantity);
         modalBox.append(itemCard);
