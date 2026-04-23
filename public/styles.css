@@ -13,7 +13,15 @@
 
 #inventory-cards > div {
     border: 2px solid black;
-    width: 200px
+    width: 200px;
+}
+
+.visible-item {
+    display: block;
+}
+
+.hidden-item {
+    display: none;
 }
 
 #inventory-cards > div > img {
@@ -93,8 +101,8 @@ Retrieved 2026-03-29, License - CC BY-SA 4.0
 */
 input[type="datetime-local"]::-webkit-inner-spin-button,
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    margin:0;
+    margin: 0;
 }
 input[type="datetime-local"]::-webkit-datetime-edit {
-    display:none;
+    display: none;
 }

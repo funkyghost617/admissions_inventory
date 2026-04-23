@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
-        <div id="password-page">
+        <div id="password-page" hidden>
             <label for="email">Email: <input id="email" type="email" /></label>
             <label for="password"
                 >Password: <input id="password" type="password"
@@ -23,13 +23,17 @@
             </h2>
             <div id="inventory-section-to-hide">
                 <div id="inventory-sorts">
-                    sort by:
+                    Sort by:
                     <button type="button" id="sort-inventory-name-btn">
                         name
                     </button>
                     <button type="button" id="sort-inventory-location-btn">
                         location
                     </button>
+                </div>
+                <div id="inventory-tags-container">
+                    View items with tag:
+                    <div id="inventory-tags"></div>
                 </div>
                 <div id="inventory-cards"></div>
             </div>

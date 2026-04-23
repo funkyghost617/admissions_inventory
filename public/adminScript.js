@@ -14,6 +14,8 @@ const passwordPage = document.querySelector("#password-page");
 passwordInput.addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
     let isMatch = false;
+    emailInput.disabled = true;
+    passwordInput.disabled = true;
     const loginObj = {
       email: emailInput.value,
       password: passwordInput.value,
@@ -38,6 +40,8 @@ passwordInput.addEventListener("keydown", async (e) => {
     } else {
       emailInput.value = "";
       passwordInput.value = "";
+      emailInput.disabled = false;
+      passwordInput.disabled = false;
       alert("Incorrect login");
     }
   } else {
@@ -115,6 +119,8 @@ async function fetchInventoryItemFromServer(itemID) {
 }
 
 let currentInventory;
+const tagsDiv = document.querySelector("#inventory-tags");
+let tagsArray = [];
 
 const modalBox = document.querySelector("#modal-box");
 const inventoryCardsDiv = document.querySelector("#inventory-cards");
@@ -133,8 +139,22 @@ async function populateInventoryCards(sort = "name") {
     location.textContent = `Location: ${item.location}`;
     const quantity = document.createElement("p");
     quantity.textContent = `Total quantity: ${item.quantity}`;
+    const tags = document.createElement("p");
+    const itemTagsArray = item.tags;
+    if (itemTagsArray != null) {
+      itemTagsArray.forEach((tag) => {
+        card.classList.add(tag.replace(" ", "_"));
+        if (!tagsArray.includes(tag.replace(" ", "_"))) {
+          tagsArray.push(tag.replace(" ", "_"));
+        }
+      });
+    } else {
+      card.classList.add("[no_tags]");
+    }
 
-    card.append(name, image, location, quantity);
+    tags.textContent = `Tags: ${itemTagsArray == null ? "none" : itemTagsArray}`;
+
+    card.append(name, image, location, quantity, tags);
     inventoryCardsDiv.appendChild(card);
 
     card.addEventListener("click", (e) => {
@@ -245,11 +265,52 @@ async function populateInventoryCards(sort = "name") {
     });
   });
 
+  tagsArray.sort();
+  tagsArray.push("no_tags");
+  tagsDiv.innerHTML = "";
+  for (let i = 0; i < tagsArray.length; i++) {
+    const label = document.createElement("label");
+    label.setAttribute("for", tagsArray[i]);
+    const input = document.createElement("input");
+    input.setAttribute("id", tagsArray[i]);
+    input.setAttribute("type", "checkbox");
+    const span = document.createElement("span");
+    span.textContent = ` ${tagsArray[i].replace("_", " ")}`;
+    label.append(input, span);
+    tagsDiv.append(label);
+  }
+  tagsDiv.addEventListener("change", (e) => {
+    updateVisibleItems();
+  });
+
+  const selectAllBtn = document.createElement("button");
+  selectAllBtn.setAttribute("type", "button");
+  selectAllBtn.textContent = "select all";
+  const deselectAllBtn = document.createElement("button");
+  deselectAllBtn.setAttribute("type", "button");
+  deselectAllBtn.textContent = "deselect all";
+  tagsDiv.append(selectAllBtn, deselectAllBtn);
+
+  const allTagInputs = document.querySelectorAll("#inventory-tags input");
+  selectAllBtn.addEventListener("click", (e) => {
+    allTagInputs.forEach((tagInput) => {
+      tagInput.checked = true;
+    });
+    updateVisibleItems();
+  });
+  deselectAllBtn.addEventListener("click", (e) => {
+    allTagInputs.forEach((tagInput) => {
+      tagInput.checked = false;
+    });
+    updateVisibleItems();
+  });
+
   const addNewItem = document.createElement("div");
   const addNewItemPara = document.createElement("p");
   addNewItemPara.textContent = "add new item";
   addNewItem.append(addNewItemPara);
   inventoryCardsDiv.append(addNewItem);
+  selectAllBtn.click();
   addNewItem.addEventListener("click", (e) => {
     const modalTitle = document.createElement("h2");
     modalTitle.textContent = "Add an item to inventory";
@@ -342,6 +403,41 @@ async function populateInventoryCards(sort = "name") {
 
       modalBox.innerHTML = "";
     });
+  });
+}
+
+function updateVisibleItems() {
+  const allItemCards = document.querySelectorAll(
+    "#inventory-cards > div:not(:last-child)",
+  );
+  console.log(allItemCards.length);
+  console.log(tagsArray);
+  const allTagInputs = document.querySelectorAll("#inventory-tags input");
+  let visibleTagInputs = [];
+  allTagInputs.forEach((tagInput) => {
+    if (tagInput.checked) {
+      visibleTagInputs.push(tagInput.getAttribute("id"));
+    }
+  });
+  allItemCards.forEach((itemCard) => {
+    let hasVisibleTag = false;
+    for (let i = 0; i < tagsArray.length; i++) {
+      if (
+        itemCard.classList.contains(tagsArray[i]) &&
+        visibleTagInputs.includes(tagsArray[i])
+      ) {
+        hasVisibleTag = true;
+      }
+    }
+    if (hasVisibleTag) {
+      console.log(itemCard.getAttribute("item-id") + " is visible!");
+      itemCard.classList.remove("hidden-item");
+      itemCard.classList.add("visible-item");
+    } else {
+      console.log(itemCard.getAttribute("item-id") + " is hidden!");
+      itemCard.classList.remove("visible-item");
+      itemCard.classList.add("hidden-item");
+    }
   });
 }
 
@@ -478,9 +574,15 @@ async function populateRequestCards(status) {
                 } else {
                   itemRequestQuantity.textContent = `Count: ${info.quantity}`;
                 }
+              } else {
+                itemRequestQuantity.textContent = `Count: ${info.quantity}`;
               }
+            } else {
+              itemRequestQuantity.textContent = `Count: ${info.quantity}`;
             }
           });
+        } else {
+          itemRequestQuantity.textContent = `Count: ${info.quantity}`;
         }
 
         itemCard.append(itemImgDiv, itemName, itemLoca, itemRequestQuantity);
