@@ -149,10 +149,10 @@ async function populateInventoryCards(sort = "name") {
         }
       });
     } else {
-      card.classList.add("[no_tags]");
+      card.classList.add("no_tags");
     }
 
-    tags.textContent = `Tags: ${itemTagsArray == null ? "none" : itemTagsArray}`;
+    tags.textContent = `Tags: ${itemTagsArray == null ? "no tags" : itemTagsArray}`;
 
     card.append(name, image, location, quantity, tags);
     inventoryCardsDiv.appendChild(card);
@@ -183,7 +183,80 @@ async function populateInventoryCards(sort = "name") {
       quantityInput.setAttribute("type", "text");
       quantityInput.setAttribute("placeholder", "Quantity");
       quantityInput.value = quantity.textContent.split(": ")[1];
-      modalBox.append(nameInput, imgEx, imgHref, locationInput, quantityInput);
+
+      const currentTagsDiv = document.createElement("div");
+      currentTagsDiv.setAttribute("id", "current-tags-div");
+      currentTagsDiv.textContent = "Current tags: ";
+      let currentTagsArray = [];
+      card.classList.values().forEach((value) => {
+        if (value != "visible-item" && value != "hidden-item") {
+          currentTagsArray.push(value);
+        }
+      });
+      console.log(currentTagsArray);
+      for (let i = 0; i < currentTagsArray.length; i++) {
+        const span = document.createElement("span");
+        span.textContent = currentTagsArray[i].replace("_", " ");
+        currentTagsDiv.appendChild(span);
+        if (currentTagsArray[i] != "no_tags") {
+          span.addEventListener("click", (e) => {
+            if (
+              confirm(
+                `Are you sure you want to delete the "${currentTagsArray[i].replace("_", "")}"" tag from this item?`,
+              )
+            ) {
+              span.remove();
+              submitBtn.disabled = false;
+            }
+          });
+        }
+      }
+      const addNewTag = document.createElement("span");
+      addNewTag.textContent = "add +";
+      addNewTag.setAttribute("id", "add-new-tag-span");
+      addNewTag.addEventListener("click", (e) => {
+        let newTagString = prompt(
+          "Enter the tag you'd like to add to this item",
+        );
+        if (currentTagsArray.includes(newTagString.replace(" ", "_"))) {
+          alert(`Item already has the "${newTagString}" tag`);
+        } else {
+          const span = document.createElement("span");
+          span.textContent = newTagString;
+          addNewTag.insertAdjacentElement("beforebegin", span);
+          submitBtn.disabled = false;
+          span.addEventListener("click", (e) => {
+            if (
+              confirm(
+                `Are you sure you want to delete the "${newTagString}" tag from this item?`,
+              )
+            ) {
+              span.remove();
+            }
+          });
+        }
+      });
+      currentTagsDiv.appendChild(addNewTag);
+      modalBox.append(
+        nameInput,
+        imgEx,
+        imgHref,
+        locationInput,
+        quantityInput,
+        currentTagsDiv,
+      );
+      const detectForSubmitEnable = [
+        nameInput,
+        imgEx,
+        imgHref,
+        locationInput,
+        quantityInput,
+      ];
+      detectForSubmitEnable.forEach((element) => {
+        element.addEventListener("change", (e) => {
+          submitBtn.disabled = false;
+        });
+      });
 
       const btnDiv = document.createElement("div");
       const deleteBtn = document.createElement("button");
@@ -194,9 +267,10 @@ async function populateInventoryCards(sort = "name") {
       cancelBtn.textContent = "cancel";
       const submitBtn = document.createElement("button");
       submitBtn.setAttribute("type", "button");
-      submitBtn.textContent = "submit";
+      submitBtn.textContent = "save";
       btnDiv.append(deleteBtn, cancelBtn, submitBtn);
       modalBox.append(btnDiv);
+      submitBtn.disabled = true;
 
       modalBox.setAttribute("class", "inventory-modal");
       modalBox.showModal();
@@ -236,11 +310,26 @@ async function populateInventoryCards(sort = "name") {
         quantityInput.disabled = true;
         cancelBtn.disabled = true;
         submitBtn.disabled = true;
+        let updatedTagsArray = [];
+        const updatedTagSpans = document.querySelectorAll(
+          "#current-tags-div > span:not(:last-child)",
+        );
+        if (
+          updatedTagSpans.length == 1 &&
+          updatedTagSpans[0].textContent == "no tags"
+        ) {
+          updatedTagsArray = null;
+        } else {
+          updatedTagSpans.forEach((span) => {
+            updatedTagsArray.push(span.textContent);
+          });
+        }
         const newItemObj = {
           name: nameInput.value,
           location: locationInput.value,
           quantity: Number(quantityInput.value),
           image_link: imgHref.value,
+          tags: updatedTagsArray,
         };
         const fullRequestObj = {
           requestObj: newItemObj,
@@ -260,6 +349,41 @@ async function populateInventoryCards(sort = "name") {
         location.textContent = `Location: ${locationInput.value}`;
         image.setAttribute("src", imgHref.value);
         quantity.textContent = `Total quantity: ${quantityInput.value}`;
+        tags.textContent = `Tags: ${updatedTagsArray == [] ? "no tags" : updatedTagsArray}`;
+        card.classList.values().forEach((value) => {
+          if (value != "visible-item" && value != "hidden-item") {
+            card.classList.remove(value);
+          }
+        });
+        if (updatedTagsArray == []) {
+          card.classList.add("no_tags");
+        } else {
+          const currentTagCheckboxes = document.querySelectorAll(
+            "#inventory-tags input",
+          );
+          let currentTagArray = [];
+          currentTagCheckboxes.forEach((checkbox) => {
+            currentTagArray.push(checkbox.getAttribute("id").replace("_", " "));
+          });
+          updatedTagsArray.forEach((updatedTag) => {
+            card.classList.add(updatedTag.replace(" ", "_"));
+            if (!currentTagArray.includes(updatedTag)) {
+              const noTagCheckbox = document.querySelector(
+                'label[for="no_tags"',
+              );
+              const label = document.createElement("label");
+              label.setAttribute("for", updatedTag.replace(" ", "_"));
+              const input = document.createElement("input");
+              input.setAttribute("type", "checkbox");
+              input.setAttribute("id", updatedTag.replace(" ", "_"));
+              const span = document.createElement("span");
+              span.textContent = updatedTag;
+              label.append(input, span);
+              noTagCheckbox.insertAdjacentElement("beforebegin", label);
+            }
+          });
+        }
+        updateVisibleItems();
         modalBox.innerHTML = "";
       });
     });
@@ -332,7 +456,17 @@ async function populateInventoryCards(sort = "name") {
     const quantityInput = document.createElement("input");
     quantityInput.setAttribute("type", "text");
     quantityInput.setAttribute("placeholder", "Quantity");
-    modalBox.append(nameInput, imgEx, imgHref, locationInput, quantityInput);
+    const tagMessage = document.createElement("p");
+    tagMessage.textContent =
+      "You will be able to add tags to item after creation";
+    modalBox.append(
+      nameInput,
+      imgEx,
+      imgHref,
+      locationInput,
+      quantityInput,
+      tagMessage,
+    );
 
     const btnDiv = document.createElement("div");
     const cancelBtn = document.createElement("button");
