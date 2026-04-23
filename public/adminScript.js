@@ -531,9 +531,15 @@ async function populateInventoryCards(sort = "name") {
       location.textContent = `Location: ${locationInput.value}`;
       const quantity = document.createElement("p");
       quantity.textContent = `Total quantity: ${quantityInput.value}`;
+      const tags = document.createElement("p");
+      tags.textContent = `Tags: no tags`;
 
-      card.append(name, image, location, quantity);
+      card.append(name, image, location, quantity, tags);
+      card.classList.add("no_tags");
       addNewItem.insertAdjacentElement("beforebegin", card);
+      const noTagsCheckbox = document.querySelector("#no_tags");
+      noTagsCheckbox.checked = true;
+      updateVisibleItems();
 
       modalBox.innerHTML = "";
     });

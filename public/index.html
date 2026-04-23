@@ -28,7 +28,22 @@
 
         <div id="inventory-div">
             <h2>Inventory</h2>
-            <div id="inventory-cards"></div>
+            <div id="inventory-section-to-hide">
+                <div id="inventory-sorts">
+                    Sort by:
+                    <button type="button" id="sort-inventory-name-btn">
+                        name
+                    </button>
+                    <button type="button" id="sort-inventory-location-btn">
+                        location
+                    </button>
+                </div>
+                <div id="inventory-tags-container">
+                    View items with tag:
+                    <div id="inventory-tags"></div>
+                </div>
+                <div id="inventory-cards"></div>
+            </div>
         </div>
         <div id="notes-div">
             <label for="notes">Notes: <textarea id="notes"></textarea></label>
