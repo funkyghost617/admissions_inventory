@@ -1,5 +1,45 @@
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border-color: #e5e5e5;
+    --accent: #0066ff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0a0;
+        --border-color: #404040;
+        --accent: #4d94ff;
+    }
+
+    input,
+    textarea {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+}
+
 * {
     box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+a {
+    color: var(--accent);
+}
+
+dialog {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .date-time-error {
@@ -9,11 +49,17 @@
 #inventory-cards {
     display: flex;
     flex-flow: row wrap;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #inventory-cards > div {
-    border: 2px solid black;
+    border: 1px solid var(--border-color);
     width: 200px;
+    height: 450px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
 }
 
 .visible-item {
@@ -33,7 +79,7 @@
     z-index: 3;
     width: 96vw;
     height: 96vh;
-    background: white;
+    background: var(--bg-primary);
 }
 
 #password-page.successful {
@@ -94,15 +140,48 @@
     flex-shrink: 0;
 }
 
-/*
-Source - https://stackoverflow.com/a/71486092
-Posted by Harvey Mushman
-Retrieved 2026-03-29, License - CC BY-SA 4.0
-*/
-input[type="datetime-local"]::-webkit-inner-spin-button,
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    margin: 0;
+#request-details-div {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+    height: 120px;
 }
-input[type="datetime-local"]::-webkit-datetime-edit {
-    display: none;
+
+#date-time-info {
+    display: flex;
+    flex-flow: row wrap;
+    width: 350px;
+    justify-content: space-between;
+}
+
+#date-time-info > label {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    width: 100%;
+}
+
+input[type="datetime-local"] {
+    display: inline-block;
+    width: 27px;
+}
+
+label:has(input[type="checkbox"]) {
+    border-radius: 2rem;
+    padding: 3px;
+    transition: background-color 0.1s ease-in-out;
+    user-select: none;
+    cursor: pointer;
+}
+
+label:has(input[type="checkbox"]):hover {
+    background-color: lightgrey;
+}
+
+h1 {
+    margin: 20px 5px 5px;
+}
+
+h2 {
+    margin: 5px;
 }
