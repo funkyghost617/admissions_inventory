@@ -26,6 +26,7 @@
 
 * {
     box-sizing: border-box;
+    user-select: none;
 }
 
 body {
@@ -60,6 +61,19 @@ dialog {
     height: 450px;
     background: var(--bg-secondary);
     border-radius: 10px;
+    cursor: pointer;
+}
+
+#inventory-cards > div:has(select) {
+    cursor: default;
+}
+
+select {
+    cursor: pointer;
+}
+
+#inventory-cards > div:hover {
+    background: #2596be;
 }
 
 .visible-item {
